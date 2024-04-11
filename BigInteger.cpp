@@ -292,10 +292,19 @@ BigInteger BigInteger::operator*(const BigInteger& bi) const
 
 BigInteger& BigInteger::operator^=(const BigInteger& bi)
 { 
-    const auto mul(*this);
-    for(auto i = 1_bi; i != bi; ++i)
+    auto mul(*this);
+    if(bi.sign == Sign::Negative)
+    {
+        *this = 0_bi;
+        return *this; 
+    }
+    for(auto i = 1_bi; i != bi.abs(); ++i)
     {
         *this *= mul;
+    }
+    if(sign == Sign::Negative)
+    {
+        sign = bi.isOdd();
     }
     return *this;
 }
@@ -305,6 +314,11 @@ BigInteger BigInteger::operator^(const BigInteger& bi) const
     BigInteger res(*this);
     res ^= bi;
     return res;
+}
+
+bool BigInteger::isOdd() const
+{
+    return (digits.at(0) - '0' % 2 != 0);
 }
 
 BigInteger& BigInteger::operator/=(const BigInteger& bi)
@@ -324,22 +338,21 @@ BigInteger& BigInteger::operator/=(const BigInteger& bi)
         return *this;
     }
     bool outSign = sign != bi.sign;
-
     size_t i, resInd = 0, num;
     std::vector<int> res(digits.size(), 0);
     BigInteger t(0);
 
-    for(i = digits.size() - 1; t * 10_bi + \
-           static_cast<BigInteger>(digits[i] - '0') < bi; --i)
+    for(i = digits.size() - 1; (t * 10_bi + \
+           BigInteger(digits[i] - '0')).lessThan(bi); --i)
     {
-        t = t * 10_bi + static_cast<BigInteger>(digits[i] - '0');
+        t = t * 10_bi + BigInteger(digits[i] - '0');
     }
 
     for(; i != size_t(-1); --i)
     {
-        t = t * 10_bi + static_cast<BigInteger>(digits[i] - '0');
-        for(num = 9; bi * static_cast<BigInteger>(num) > t; --num);
-        t -= bi * static_cast<BigInteger>(num);
+        t = t * 10_bi + BigInteger(digits[i] - '0');
+        for(num = 9; (bi * BigInteger(num)).abs() > t; --num);
+        t -= bi * BigInteger(num);
         res[resInd++] = num;
     }
 
@@ -356,6 +369,14 @@ BigInteger BigInteger::operator/(const BigInteger& bi) const
 {
     BigInteger res(*this);
     res /= bi;
+    return res;
+}
+
+BigInteger BigInteger::abs() const
+{
+    BigInteger res(*this);
+    if(sign == Sign::Negative)
+        return -res;
     return res;
 }
 

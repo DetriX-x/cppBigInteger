@@ -29,6 +29,8 @@ private:
                   size_t& signs_count) const;
     const std::pair<size_t, size_t>
         skipSigns(const std::string& s) const; 
+
+    bool isOdd() const;
 public:
     // ctors
     
@@ -61,6 +63,8 @@ public:
     BigInteger& operator/=(const BigInteger& bi);
     BigInteger operator/(const BigInteger& bi) const;
 
+    BigInteger abs() const;
+
     bool operator==(const BigInteger& bi) const;
 
     bool operator!=(const BigInteger& bi) const;
@@ -90,4 +94,5 @@ public:
 BigInteger operator"" _bi(const char* s, size_t);
 
 BigInteger operator"" _bi(unsigned long long num);
+
 #endif
